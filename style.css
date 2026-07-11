@@ -1,0 +1,231 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f4f6f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.card-container {
+    background: #fff;
+    width: 100%;
+    max-width: 600px;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+}
+
+.step-indicator {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.step-indicator::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #e0e0e0;
+    z-index: 1;
+    transform: translateY(-50%);
+}
+
+.step {
+    width: 35px;
+    height: 35px;
+    background: #fff;
+    border: 2px solid #e0e0e0;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    color: #999;
+    z-index: 2;
+    transition: all 0.3s ease;
+}
+
+.step.active {
+    border-color: #7a223a;
+    background: #7a223a;
+    color: #fff;
+}
+
+.form-phase { display: none; }
+.form-phase.active-phase { display: block; }
+
+h2 {
+    color: #4a1525;
+    margin-bottom: 20px;
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section-title {
+    font-size: 0.9rem;
+    color: #7a223a;
+    text-transform: uppercase;
+    margin: 20px 0 8px 0;
+    font-weight: bold;
+    border-left: 3px solid #7a223a;
+    padding-left: 6px;
+}
+
+label {
+    display: block;
+    margin: 12px 0 6px 0;
+    color: #444;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    background-color: #fafafa;
+    transition: border-color 0.2s;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #7a223a;
+    background-color: #fff;
+}
+
+.checkbox-group {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-weight: normal;
+    background: #fdfdfd;
+    padding: 8px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.checkbox-group input {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    cursor: pointer;
+}
+
+.row { display: flex; gap: 12px; }
+
+/* Ajustes estructurales para los select dinámicos en columnas */
+.select-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.inline-label {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 4px;
+}
+
+.navigation-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 25px;
+    gap: 10px;
+}
+
+button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: bold;
+    transition: opacity 0.2s;
+}
+
+button:hover { opacity: 0.9; }
+
+#btn-prev { background-color: #e0e0e0; color: #555; }
+#btn-prev:disabled { opacity: 0.4; cursor: not-allowed; }
+#btn-next { background-color: #7a223a; color: white; }
+#btn-imprimir { background-color: #28a745; color: white; flex: 1; }
+.hidden { display: none !important; }
+
+.print-only { display: none; }
+
+.hidden-conditional {
+    display: none !important;
+}
+
+@media print {
+    .no-print, body, .card-container, .navigation-buttons, canvas {
+        display: none !important;
+    }
+
+    html, body {
+        background: #fff;
+        margin: 0;
+        padding: 0;
+    }
+
+    .print-only {
+        display: flex !important;
+        justify-content: center;
+        align-items: center;
+        width: 100vw;
+        height: 100vh;
+    }
+
+    #print-image {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    @page {
+        size: letter;
+        margin: 0;
+    }
+}
+
+/* --- AJUSTES DE ADAPTABILIDAD MÓVIL (MEDIA QUERIES) --- */
+@media (max-width: 480px) {
+    .row {
+        flex-direction: column;
+        gap: 12px; /* Mantiene espacio uniforme cuando se apilan */
+    }
+    
+    .checkbox-group {
+        grid-template-columns: 1fr; /* Las pruebas se ven mejor en lista única en pantallas chicas */
+    }
+    
+    .card-container {
+        padding: 20px; /* Aprovecha mejor el espacio en celulares */
+    }
+}

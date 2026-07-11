@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asistente de Formulario - Aculco</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="card-container no-print">
+        <div class="step-indicator">
+            <div class="step active" id="step-1">1</div>
+            <div class="step" id="step-2">2</div>
+            <div class="step" id="step-3">3</div>
+            <div class="step" id="step-4">4</div>
+        </div>
+
+        <form id="form-asistente" onsubmit="return false;">
+            
+            <div class="form-phase active-phase" id="phase-1">
+                <h2><i class="fa-solid fa-file-invoice"></i> Fase 1: Inicio de Trámite</h2>
+                
+                <label for="tipo_tramite">1. Tipo de Trámite:</label>
+                <select id="tipo_tramite">
+                    <option value="QUEJA">💬 Queja (Por una mala atención)</option>
+                    <option value="DENUNCIA">📢 Denuncia (Por una falta administrativa o acto de corrupción)</option>
+                    <option value="SUGERENCIA">💡 Sugerencia (Para mejorar servicios públicos)</option>
+                </select>
+
+                <label for="forma_presentacion">2. ¿Cómo presentó su queja?</label>
+                <select id="forma_presentacion">
+                    <option value="PERSONAL">👤 Personal</option>
+                    <option value="TELEFONO">📞 Teléfono</option>
+                    <option value="BUZON">📬 Buzón</option>
+                    <option value="CORREO">✉️ Correo electrónico</option>
+                </select>
+            </div>
+
+            <div class="form-phase" id="phase-2">
+                <h2><i class="fa-solid fa-user"></i> Fase 2: Datos del Solicitante</h2>
+                <input type="text" id="sol_nombre" placeholder="Nombre completo" required>
+                <input type="text" id="sol_domicilio" placeholder="📍 Domicilio">
+                <input type="text" id="sol_colonia" placeholder="📍 Colonia o localidad">
+                
+                <div class="row">
+                    <div class="select-container">
+                        <label for="sol_estado" class="inline-label">Estado:</label>
+                        <select id="sol_estado"></select>
+                    </div>
+                    <div class="select-container">
+                        <label for="sol_municipio" class="inline-label">Municipio:</label>
+                        <select id="sol_municipio"></select>
+                    </div>
+                </div>
+
+                <input type="text" id="sol_telefono" placeholder="📞 Teléfono (Opcional)">
+                <input type="email" id="sol_correo" placeholder="✉️ Correo electrónico (Opcional)">
+            </div>
+
+            <div class="form-phase" id="phase-3">
+                <h2><i class="fa-solid fa-user-slash"></i> Fase 3: Datos de la Queja</h2>
+                <h3 class="section-title">¿Contra quién presenta la queja?</h3>
+                <input type="text" id="den_nombre" placeholder="👤 Nombre del servidor público (si lo conoce)">
+                <input type="text" id="den_cargo" placeholder="💼 Cargo o puesto">
+                <input type="text" id="den_area" placeholder="🏢 Área o dependencia">
+                <input type="text" id="den_municipio" placeholder="📍 Municipio del hecho" value="Aculco">
+                
+                <h3 class="section-title">¿Cuándo y dónde ocurrieron los hechos?</h3>
+                <div class="row">
+                    <input type="date" id="hechos_fecha" required>
+                    <input type="time" id="hechos_hora">
+                </div>
+                <input type="text" id="hechos_lugar" placeholder="📍 Lugar (dependencia, oficina o dirección)" required>
+            </div>
+
+            <div class="form-phase" id="phase-4">
+                <h2><i class="fa-solid fa-pen-to-square"></i> Fase 4: Hechos e Información Adicional</h2>
+                
+                <label for="hechos_descripcion">6. Describa lo sucedido con el mayor detalle posible:</label>
+                <textarea id="hechos_descripcion" rows="5" placeholder="Qué sucedido, cómo sucedió, etc..." required></textarea>
+
+                <label>7. ¿Cuenta con alguna prueba?</label>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" class="prueba-check" value="FOTOGRAFIAS"> Fotografías</label>
+                    <label><input type="checkbox" class="prueba-check" value="VIDEOS"> Videos</label>
+                    <label><input type="checkbox" class="prueba-check" value="DOCUMENTOS"> Documentos</label>
+                    <label><input type="checkbox" class="prueba-check" value="AUDIOS"> Audios</label>
+                </div>
+
+                <label for="hubo_testigos">8. ¿Hubo testigos?</label>
+                <select id="hubo_testigos">
+                    <option value="NO">No</option>
+                    <option value="SI">Sí</option>
+                </select>
+
+                <div id="campos-testigo" class="hidden-conditional">
+                    <p class="section-title" style="font-size: 0.85rem; margin-top: 5px;">Datos del testigo (opcionales):</p>
+                    <input type="text" id="testigo_nombre" placeholder="👤 Nombre del testigo">
+                    <input type="text" id="testigo_telefono" placeholder="📞 Teléfono del testigo">
+                    <input type="text" id="testigo_domicilio" placeholder="📍 Domicilio del testigo">
+                </div>
+            </div>
+        </form>
+
+        <div class="navigation-buttons">
+            <button type="button" id="btn-prev" disabled>Anterior</button>
+            <button type="button" id="btn-next">Siguiente</button>
+            <button type="button" id="btn-imprimir" class="hidden">Imprimir Documento <i class="fa-solid fa-print"></i></button>
+        </div>
+    </div>
+
+    <canvas id="formularioCanvas" style="display: none;"></canvas>
+
+    <div id="print-area" class="print-only">
+        <img id="print-image" src="" alt="Formulario Final">
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
