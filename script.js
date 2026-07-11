@@ -1,3 +1,6 @@
+// ==========================================
+// 1. VARIABLES Y SELECTORES ELEMENTALES
+// ==========================================
 const canvas = document.getElementById('formularioCanvas');
 const ctx = canvas.getContext('2d');
 const printImage = document.getElementById('print-image');
@@ -18,7 +21,7 @@ const estadosMunicipios = {
     "Michoacán": ["Morelia", "Uruapan", "Zamora", "Lázaro Cárdenas", "Zitácuaro"]
 };
 
-// Carga inicial asíncrona de la imagen
+// Carga inicial asíncrona de la imagen base
 const imgBase = new Image();
 imgBase.crossOrigin = "anonymous"; // Evita problemas de CORS al hacer toDataURL
 imgBase.src = 'https://i.imgur.com/uR2T7O4.png'; 
@@ -27,7 +30,9 @@ imgBase.onload = () => {
     canvas.height = imgBase.height;
 };
 
-// FUNCIÓN PARA LLENAR LOS SELECTS DINÁMICAMENTE
+// ==========================================
+// 2. LLENADO DINÁMICO DE ESTADOS Y MUNICIPIOS
+// ==========================================
 function inicializarEstadosYMunicipios() {
     const selectEstado = document.getElementById('sol_estado');
     const selectMunicipio = document.getElementById('sol_municipio');
@@ -67,7 +72,9 @@ function actualizarMunicipios(estadoSeleccionado) {
 
 inicializarEstadosYMunicipios();
 
-// NAVEGACIÓN ENTRE FASES
+// ==========================================
+// 3. NAVEGACIÓN ENTRE FASES Y VALIDACIONES
+// ==========================================
 btnNext.addEventListener('click', () => {
     if (validarFaseActiva()) {
         if (faseActual < totalFases) cambiarFase(faseActual + 1);
@@ -140,7 +147,9 @@ function obtenerLineasTexto(texto, maxCaracteres) {
     return lineas;
 }
 
-// PROCESAMIENTO GRÁFICO DEL CANVAS
+// ==========================================
+// 4. PROCESAMIENTO GRÁFICO DEL CANVAS
+// ==========================================
 function generarImagenImpresion() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(imgBase, 0, 0);
@@ -185,12 +194,12 @@ function generarImagenImpresion() {
 
     // 6. DESCRIPCIÓN POR RENGLONES (Optimizado con Word Wrap)
     const desc = document.getElementById('hechos_descripcion').value || '';
-    const lineasDeDescripcion = obtenerLineasTexto(desc, 85); // 85 para dar un margen seguro
+    const lineasDeDescripcion = obtenerLineasTexto(desc, 85); 
     let yStart = 552;
     
     lineasDeDescripcion.forEach(linea => {
         ctx.fillText(linea, 65, yStart);
-        yStart += 22; // Incrementado ligeramente a 22 para mejor legibilidad vertical
+        yStart += 22; 
     });
 
     // 7. ¿CUENTA CON ALGUNA PRUEBA?
@@ -219,24 +228,30 @@ function generarImagenImpresion() {
     printImage.src = canvas.toDataURL('image/jpeg', 1.0);
 }
 
-// EJECUCIÓN SEGURA DE IMPRESIÓN
-btnImprimir.addEventListener('click', () => {
-    // Si la imagen no ha cargado del todo, forzar su carga antes de proceder
-    if (!imgBase.complete) {
-        imgBase.onload = () => {
-            canvas.width = imgBase.width;
-            canvas.height = imgBase.height;
-            ejecutarFlujoImpresion();
-        };
-    } else {
-        ejecutarFlujoImpresion();
-    }
-});
+// ==========================================
+// 5. COMUNICACIÓN ASÍNCRONA CON EL SERVER NODE
+// ==========================================
+async function mandarDatosAlServidor() {
+    // Almacena las pruebas seleccionadas separadas por comas
+    const pruebasMarcadas = Array.from(document.querySelectorAll('.prueba-check:checked'))
+        .map(cb => cb.value)
+        .join(', ');
 
-function ejecutarFlujoImpresion() {
-    generarImagenImpresion();
-    // Un pequeño retraso para asegurar que el navegador renderizó el src del printImage
-    setTimeout(() => {
-        window.print();
-    }, 400);
-}
+    const cajaDeDatos = {
+        tipo_tramite: document.getElementById('tipo_tramite').value,
+        forma_presentacion: document.getElementById('forma_presentacion').value,
+        sol_nombre: document.getElementById('sol_nombre').value,
+        sol_domicilio: document.getElementById('sol_domicilio').value || '',
+        sol_colonia: document.getElementById('sol_colonia').value || '',
+        sol_estado: document.getElementById('sol_estado').value || '',
+        sol_municipio: document.getElementById('sol_municipio').value || '',
+        sol_telefono: document.getElementById('sol_telefono').value || '',
+        sol_correo: document.getElementById('sol_correo').value || '',
+        den_nombre: document.getElementById('den_nombre').value || '',
+        den_cargo: document.getElementById('den_cargo').value || '',
+        den_area: document.getElementById('den_area').value || '',
+        den_municipio: document.getElementById('den_municipio').value || 'Aculco',
+        hechos_fecha: document.getElementById('hechos_fecha').value,
+        hechos_hora: document.getElementById('hechos_hora').value || '00:00',
+        hechos_lugar: document.getElementById('hechos_lugar').value,
+        hechos
