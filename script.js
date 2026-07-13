@@ -1,4 +1,4 @@
-/const canvas = document.getElementById('formularioCanvas');
+const canvas = document.getElementById('formularioCanvas');
 const ctx = canvas.getContext('2d');
 const printImage = document.getElementById('print-image');
 
