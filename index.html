@@ -40,7 +40,7 @@
 
             <div class="form-phase" id="phase-2">
                 <h2><i class="fa-solid fa-user"></i> Fase 2: Datos del Solicitante</h2>
-                <input type="text" id="sol_nombre" placeholder="Nombre completo" required>
+                <input type="text" id="sol_nombre" placeholder="Nombre completo" required pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$" title="Solo se permiten letras y espacios">
                 <input type="text" id="sol_domicilio" placeholder="📍 Domicilio">
                 <input type="text" id="sol_colonia" placeholder="📍 Colonia o localidad">
                 
@@ -55,14 +55,14 @@
                     </div>
                 </div>
 
-                <input type="text" id="sol_telefono" placeholder="📞 Teléfono (Opcional)">
+                <input type="tel" id="sol_telefono" placeholder="📞 Teléfono (Opcional)" pattern="^\d{10}$" maxlength="10" inputmode="numeric" title="Deben ser exactamente 10 números">
                 <input type="email" id="sol_correo" placeholder="✉️ Correo electrónico (Opcional)">
             </div>
 
             <div class="form-phase" id="phase-3">
                 <h2><i class="fa-solid fa-user-slash"></i> Fase 3: Datos de la Queja</h2>
                 <h3 class="section-title">¿Contra quién presenta la queja?</h3>
-                <input type="text" id="den_nombre" placeholder="👤 Nombre del servidor público (si lo conoce)">
+                <input type="text" id="den_nombre" placeholder="👤 Nombre del servidor público (si lo conoce)" pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$" title="Solo se permiten letras y espacios">
                 <input type="text" id="den_cargo" placeholder="💼 Cargo o puesto">
                 <input type="text" id="den_area" placeholder="🏢 Área o dependencia">
                 <input type="text" id="den_municipio" placeholder="📍 Municipio del hecho" value="Aculco">
@@ -97,8 +97,8 @@
 
                 <div id="campos-testigo" class="hidden-conditional">
                     <p class="section-title" style="font-size: 0.85rem; margin-top: 5px;">Datos del testigo (opcionales):</p>
-                    <input type="text" id="testigo_nombre" placeholder="👤 Nombre del testigo">
-                    <input type="text" id="testigo_telefono" placeholder="📞 Teléfono del testigo">
+                    <input type="text" id="testigo_nombre" placeholder="👤 Nombre del testigo" pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$" title="Solo se permiten letras y espacios">
+                    <input type="tel" id="testigo_telefono" placeholder="📞 Teléfono del testigo" pattern="^\d{10}$" maxlength="10" inputmode="numeric" title="Deben ser exactamente 10 números">
                     <input type="text" id="testigo_domicilio" placeholder="📍 Domicilio del testigo">
                 </div>
             </div>
