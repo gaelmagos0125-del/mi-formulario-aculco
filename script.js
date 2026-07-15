@@ -18,16 +18,23 @@ const estadosMunicipios = {
     "Michoacán": ["Morelia", "Uruapan", "Zamora", "Lázaro Cárdenas", "Zitácuaro"]
 };
 
-// Carga inicial asíncrona de la imagen
+// Control de carga asíncrona de la plantilla
+let imagenCargadaExitosamente = false;
 const imgBase = new Image();
-imgBase.crossOrigin = "anonymous"; // Evita problemas de CORS al hacer toDataURL
+imgBase.crossOrigin = "anonymous"; 
 imgBase.src = 'https://i.imgur.com/uR2T7O4.png'; 
+
 imgBase.onload = () => {
     canvas.width = imgBase.width;
     canvas.height = imgBase.height;
+    imagenCargadaExitosamente = true;
 };
 
-// FUNCIÓN PARA LLENAR LOS SELECTS DINÁMICAMENTE
+imgBase.onerror = () => {
+    console.error("No se pudo cargar la imagen del formulario. Compruebe la conexión o políticas de CORS.");
+};
+
+// Llenado dinámico de selectores
 function inicializarEstadosYMunicipios() {
     const selectEstado = document.getElementById('sol_estado');
     const selectMunicipio = document.getElementById('sol_municipio');
@@ -67,7 +74,7 @@ function actualizarMunicipios(estadoSeleccionado) {
 
 inicializarEstadosYMunicipios();
 
-// NAVEGACIÓN ENTRE FASES
+// Navegación multipaso
 btnNext.addEventListener('click', () => {
     if (validarFaseActiva()) {
         if (faseActual < totalFases) cambiarFase(faseActual + 1);
@@ -109,7 +116,7 @@ function cambiarFase(nuevaFase) {
     }
 }
 
-// CONTROL DINÁMICO DE VISIBILIDAD DE TESTIGOS
+// Visibilidad del campo "Testigos"
 document.getElementById('hubo_testigos').addEventListener('change', function() {
     const camposTestigo = document.getElementById('campos-testigo');
     if (this.value === 'SI') {
@@ -122,25 +129,31 @@ document.getElementById('hubo_testigos').addEventListener('change', function() {
     }
 });
 
-// FUNCIÓN AUXILIAR PARA PROCESAR EL TEXTO SIN ROMPER PALABRAS (Word Wrap)
+// Procesamiento de texto considerando saltos de línea reales (Enter)
 function obtenerLineasTexto(texto, maxCaracteres) {
-    const palabras = texto.split(' ');
-    let lineas = [];
-    let lineaActual = '';
+    const parrafos = texto.split('\n');
+    let lineasFinales = [];
 
-    palabras.forEach(palabra => {
-        if ((lineaActual + palabra).length <= maxCaracteres) {
-            lineaActual += (lineaActual === '' ? '' : ' ') + palabra;
-        } else {
-            lineas.push(lineaActual);
-            lineaActual = palabra;
-        }
+    parrafos.forEach(parrafo => {
+        const palabras = parrafo.split(' ');
+        let lineaActual = '';
+
+        palabras.forEach(palabra => {
+            if ((lineaActual + palabra).length <= maxCaracteres) {
+                lineaActual += (lineaActual === '' ? '' : ' ') + palabra;
+            } else {
+                lineasFinales.push(lineaActual);
+                lineaActual = palabra;
+            }
+        });
+        if (lineaActual !== '') lineasFinales.push(lineaActual);
+        if (parrafo === '') lineasFinales.push(''); // Preserva líneas vacías
     });
-    if (lineaActual !== '') lineas.push(lineaActual);
-    return lineas;
+
+    return lineasFinales;
 }
 
-// PROCESAMIENTO GRÁFICO DEL CANVAS
+// Dibujado sobre el Canvas
 function generarImagenImpresion() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(imgBase, 0, 0);
@@ -148,20 +161,20 @@ function generarImagenImpresion() {
     ctx.fillStyle = '#000000';
     ctx.font = 'bold 26px Arial';
 
-    // 1. TIPO DE TRÁMITE
+    // 1. Tipo de Trámite
     const tipoTramite = document.getElementById('tipo_tramite').value;
     if (tipoTramite === 'QUEJA') ctx.fillText('X', 270, 83);
     if (tipoTramite === 'DENUNCIA') ctx.fillText('X', 570, 83);
     if (tipoTramite === 'SUGERENCIA') ctx.fillText('X', 863, 83);
 
-    // 2. ¿CÓMO PRESENTÓ SU QUEJA?
+    // 2. ¿Cómo presentó su queja?
     const formaPres = document.getElementById('forma_presentacion').value;
     if (formaPres === 'PERSONAL') ctx.fillText('X', 158, 192);
     if (formaPres === 'TELEFONO') ctx.fillText('X', 351, 192);
     if (formaPres === 'BUZON') ctx.fillText('X', 158, 260);
     if (formaPres === 'CORREO') ctx.fillText('X', 351, 260);
 
-    // 3. DATOS DE LA PERSONA QUE PRESENTA
+    // 3. Datos del Solicitante
     ctx.font = '19px Courier New';
     ctx.fillText(document.getElementById('sol_nombre').value || '', 560, 172);
     ctx.fillText(document.getElementById('sol_domicilio').value || '', 560, 203);
@@ -171,29 +184,32 @@ function generarImagenImpresion() {
     ctx.fillText(document.getElementById('sol_telefono').value || '', 560, 292);
     ctx.fillText(document.getElementById('sol_correo').value || '', 560, 321);
 
-    // 4. ¿CONTRA QUIÉN PRESENTA?
+    // 4. ¿Contra quién presenta?
     ctx.fillText(document.getElementById('den_nombre').value || 'N/A', 280, 385);
     ctx.fillText(document.getElementById('den_cargo').value || 'N/A', 280, 415);
     ctx.fillText(document.getElementById('den_area').value || 'N/A', 280, 448);
     ctx.fillText(document.getElementById('den_municipio').value || 'Aculco', 280, 492);
 
-    // 5. ¿CUÁNDO Y DÓNDE OCURRIERON?
+    // 5. Hechos fecha y lugar
     const fecha = document.getElementById('hechos_fecha').value;
     ctx.fillText(fecha ? fecha.split('-').reverse().join('/') : '', 690, 385);
     ctx.fillText(document.getElementById('hechos_hora').value || '', 690, 425);
     ctx.fillText(document.getElementById('hechos_lugar').value || '', 690, 478);
 
-    // 6. DESCRIPCIÓN POR RENGLONES (Optimizado con Word Wrap)
+    // 6. Descripción de Hechos (con Word Wrap inteligente)
     const desc = document.getElementById('hechos_descripcion').value || '';
-    const lineasDeDescripcion = obtenerLineasTexto(desc, 85); // 85 para dar un margen seguro
+    const lineasDeDescripcion = obtenerLineasTexto(desc, 82); 
     let yStart = 552;
     
-    lineasDeDescripcion.forEach(linea => {
+    const maxLineasPermitidas = 8; 
+    const lineasARenderizar = lineasDeDescripcion.slice(0, maxLineasPermitidas);
+
+    lineasARenderizar.forEach(linea => {
         ctx.fillText(linea, 65, yStart);
-        yStart += 22; // Espaciado vertical optimizado para legibilidad
+        yStart += 22; 
     });
 
-    // 7. ¿CUENTA CON ALGUNA PRUEBA?
+    // 7. Pruebas
     ctx.font = 'bold 26px Arial';
     document.querySelectorAll('.prueba-check:checked').forEach(cb => {
         const val = cb.value;
@@ -203,7 +219,7 @@ function generarImagenImpresion() {
         if (val === 'AUDIOS') ctx.fillText('X', 174, 826);
     });
 
-    // 8. ¿HUBO TESTIGOS?
+    // 8. Testigos
     const testigos = document.getElementById('hubo_testigos').value;
     if (testigos === 'SI') {
         ctx.fillText('X', 442, 750); 
@@ -215,37 +231,41 @@ function generarImagenImpresion() {
         ctx.fillText('X', 515, 750); 
     }
 
-    // Exportación sin pérdida (PNG) para garantizar la nitidez del texto impreso
+    // Exportar Canvas a PNG
     printImage.src = canvas.toDataURL('image/png');
 }
 
-// EJECUCIÓN SEGURA DE IMPRESIÓN
+// Ejecución segura del flujo de impresión
 btnImprimir.addEventListener('click', () => {
-    if (!imgBase.complete) {
-        imgBase.onload = () => {
-            canvas.width = imgBase.width;
-            canvas.height = imgBase.height;
-            ejecutarFlujoImpresion();
-        };
-    } else {
-        ejecutarFlujoImpresion();
+    if (!imagenCargadaExitosamente) {
+        alert("La plantilla del formulario aún se está descargando. Por favor, intente de nuevo en un segundo.");
+        return;
+    }
+    
+    btnImprimir.innerHTML = 'Generando... <i class="fa-solid fa-spinner fa-spin"></i>';
+    btnImprimir.disabled = true;
+
+    try {
+        generarImagenImpresion();
+        
+        setTimeout(() => {
+            window.print();
+            btnImprimir.innerHTML = 'Imprimir Documento <i class="fa-solid fa-print"></i>';
+            btnImprimir.disabled = false;
+        }, 600);
+    } catch (error) {
+        console.error("Error al generar imagen de impresión:", error);
+        alert("Hubo un problema al renderizar el documento.");
+        btnImprimir.innerHTML = 'Imprimir Documento <i class="fa-solid fa-print"></i>';
+        btnImprimir.disabled = false;
     }
 });
 
-function ejecutarFlujoImpresion() {
-    generarImagenImpresion();
-    // Retraso de seguridad para renderizar correctamente el src de la imagen final antes del diálogo
-    setTimeout(() => {
-        window.print();
-    }, 400);
-}
-
-// RESTRICTOR DE ENTRADAS EN TIEMPO REAL
+// Sanitización de entradas en tiempo real
 document.addEventListener("DOMContentLoaded", () => {
     const camposNombres = ['sol_nombre', 'den_nombre', 'testigo_nombre'];
     const camposTelefonos = ['sol_telefono', 'testigo_telefono'];
 
-    // Filtro para Nombres: Remueve números y caracteres especiales al escribir
     camposNombres.forEach(id => {
         const input = document.getElementById(id);
         if (input) {
@@ -255,7 +275,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Filtro para Teléfonos: Remueve caracteres no numéricos al escribir
     camposTelefonos.forEach(id => {
         const input = document.getElementById(id);
         if (input) {
