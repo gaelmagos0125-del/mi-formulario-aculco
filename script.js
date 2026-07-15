@@ -190,7 +190,7 @@ function generarImagenImpresion() {
     
     lineasDeDescripcion.forEach(linea => {
         ctx.fillText(linea, 65, yStart);
-        yStart += 22; // Incrementado ligeramente a 22 para mejor legibilidad vertical
+        yStart += 22; // Espaciado vertical optimizado para legibilidad
     });
 
     // 7. ¿CUENTA CON ALGUNA PRUEBA?
@@ -215,13 +215,12 @@ function generarImagenImpresion() {
         ctx.fillText('X', 515, 750); 
     }
 
-    // Asignar resultado al elemento img para la ventana de impresión
-    printImage.src = canvas.toDataURL('image/jpeg', 1.0);
+    // Exportación sin pérdida (PNG) para garantizar la nitidez del texto impreso
+    printImage.src = canvas.toDataURL('image/png');
 }
 
 // EJECUCIÓN SEGURA DE IMPRESIÓN
 btnImprimir.addEventListener('click', () => {
-    // Si la imagen no ha cargado del todo, forzar su carga antes de proceder
     if (!imgBase.complete) {
         imgBase.onload = () => {
             canvas.width = imgBase.width;
@@ -235,8 +234,34 @@ btnImprimir.addEventListener('click', () => {
 
 function ejecutarFlujoImpresion() {
     generarImagenImpresion();
-    // Un pequeño retraso para asegurar que el navegador renderizó el src del printImage
+    // Retraso de seguridad para renderizar correctamente el src de la imagen final antes del diálogo
     setTimeout(() => {
         window.print();
     }, 400);
 }
+
+// RESTRICTOR DE ENTRADAS EN TIEMPO REAL
+document.addEventListener("DOMContentLoaded", () => {
+    const camposNombres = ['sol_nombre', 'den_nombre', 'testigo_nombre'];
+    const camposTelefonos = ['sol_telefono', 'testigo_telefono'];
+
+    // Filtro para Nombres: Remueve números y caracteres especiales al escribir
+    camposNombres.forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+            input.addEventListener('input', function() {
+                this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+            });
+        }
+    });
+
+    // Filtro para Teléfonos: Remueve caracteres no numéricos al escribir
+    camposTelefonos.forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+            input.addEventListener('input', function() {
+                this.value = this.value.replace(/\D/g, '');
+            });
+        }
+    });
+});
