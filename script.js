@@ -21,8 +21,12 @@ const estadosMunicipios = {
 // Control de carga asíncrona de la plantilla base
 let imagenCargadaExitosamente = false;
 const imgBase = new Image();
+
+// Habilitamos CORS de manera explícita en la imagen
 imgBase.crossOrigin = "anonymous"; 
-imgBase.src = 'https://i.imgur.com/uR2T7O4.png'; 
+
+// SOLUCIÓN CORS: Usamos un redireccionador seguro para que Imgur no bloquee el canvas en GitHub Pages
+imgBase.src = 'https://images.weserv.nl/?url=i.imgur.com/uR2T7O4.png'; 
 
 imgBase.onload = () => {
     canvas.width = imgBase.width;
@@ -231,17 +235,16 @@ function generarImagenImpresion() {
         ctx.fillText('X', 515, 750); 
     }
 
-    // MEJORA IMPORTANTE: Definimos el evento de carga ANTES de cambiar el .src
+    // El evento onload se asegura de que la imagen en base64 se cargue en el DOM antes de imprimir
     printImage.onload = () => {
-        // Lanzar la ventana de impresión nativa del sistema solo cuando esté cargada en memoria
         window.print();
         
-        // Restaurar estado del botón
+        // Restaurar botón
         btnImprimir.innerHTML = 'Imprimir Documento <i class="fa-solid fa-print"></i>';
         btnImprimir.disabled = false;
     };
 
-    // Esto gatilla el "printImage.onload"
+    // Asignar el base64 a la imagen del print-area
     printImage.src = canvas.toDataURL('image/png');
 }
 
