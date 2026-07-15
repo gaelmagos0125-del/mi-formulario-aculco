@@ -18,7 +18,7 @@ const estadosMunicipios = {
     "Michoacán": ["Morelia", "Uruapan", "Zamora", "Lázaro Cárdenas", "Zitácuaro"]
 };
 
-// Control de carga asíncrona de la plantilla
+// Control de carga asíncrona de la plantilla base
 let imagenCargadaExitosamente = false;
 const imgBase = new Image();
 imgBase.crossOrigin = "anonymous"; 
@@ -147,13 +147,13 @@ function obtenerLineasTexto(texto, maxCaracteres) {
             }
         });
         if (lineaActual !== '') lineasFinales.push(lineaActual);
-        if (parrafo === '') lineasFinales.push(''); // Preserva líneas vacías
+        if (parrafo === '') lineasFinales.push(''); 
     });
 
     return lineasFinales;
 }
 
-// Dibujado sobre el Canvas
+// Dibujado sobre el Canvas y exportación segura a Imagen
 function generarImagenImpresion() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(imgBase, 0, 0);
@@ -196,7 +196,7 @@ function generarImagenImpresion() {
     ctx.fillText(document.getElementById('hechos_hora').value || '', 690, 425);
     ctx.fillText(document.getElementById('hechos_lugar').value || '', 690, 478);
 
-    // 6. Descripción de Hechos (con Word Wrap inteligente)
+    // 6. Descripción de Hechos
     const desc = document.getElementById('hechos_descripcion').value || '';
     const lineasDeDescripcion = obtenerLineasTexto(desc, 82); 
     let yStart = 552;
@@ -231,7 +231,17 @@ function generarImagenImpresion() {
         ctx.fillText('X', 515, 750); 
     }
 
-    // Exportar Canvas a PNG
+    // MEJORA IMPORTANTE: Definimos el evento de carga ANTES de cambiar el .src
+    printImage.onload = () => {
+        // Lanzar la ventana de impresión nativa del sistema solo cuando esté cargada en memoria
+        window.print();
+        
+        // Restaurar estado del botón
+        btnImprimir.innerHTML = 'Imprimir Documento <i class="fa-solid fa-print"></i>';
+        btnImprimir.disabled = false;
+    };
+
+    // Esto gatilla el "printImage.onload"
     printImage.src = canvas.toDataURL('image/png');
 }
 
@@ -247,12 +257,6 @@ btnImprimir.addEventListener('click', () => {
 
     try {
         generarImagenImpresion();
-        
-        setTimeout(() => {
-            window.print();
-            btnImprimir.innerHTML = 'Imprimir Documento <i class="fa-solid fa-print"></i>';
-            btnImprimir.disabled = false;
-        }, 600);
     } catch (error) {
         console.error("Error al generar imagen de impresión:", error);
         alert("Hubo un problema al renderizar el documento.");
